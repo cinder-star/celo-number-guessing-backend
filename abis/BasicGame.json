@@ -1,0 +1,42 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "_hints",
+        "type": "string[]"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_secretNumber",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "int256",
+        "name": "_maxAttempts",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_guess",
+        "type": "string"
+      }
+    ],
+    "name": "attepmt",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

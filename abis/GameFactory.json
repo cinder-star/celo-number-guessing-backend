@@ -1,0 +1,38 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "string[]",
+        "name": "_hints",
+        "type": "string[]"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_secretNumber",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "int256",
+        "name": "_maxAttempts",
+        "type": "int256"
+      }
+    ],
+    "name": "createbasicGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLastGame",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
