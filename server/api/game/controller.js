@@ -20,7 +20,9 @@ async function createGame(req, res) {
 
   try {
     // Create the game
-    const hash = '0x' + keccak256(req.body.secretNumber).toString('hex');
+    const hash =
+      '0x' +
+      keccak256(keccak256(keccak256(req.body.secretNumber))).toString('hex');
     await contract.methods
       .createbasicGame(req.body.hints, hash, req.body.maxAttempts)
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
