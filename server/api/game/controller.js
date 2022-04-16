@@ -17,6 +17,10 @@ async function createGame(req, res) {
     ierc20,
     process.env.EDEN_TOKEN_ADDRESS
   );
+  const CGLD = new kit.web3.eth.Contract(
+    ierc20,
+    process.env.CGLD_TOKEN_ADDRESS
+  );
 
   try {
     // Create the game
@@ -36,6 +40,14 @@ async function createGame(req, res) {
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
     await EdenToken.methods
       .transfer(game, req.body.funds)
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+
+    // Transfer Celo to the game
+    await CGLD.methods
+      .approve(game, '1000000000000000000')
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+    await EdenToken.methods
+      .transfer(game, '1000000000000000000')
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
 
     res.send({

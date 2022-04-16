@@ -12,13 +12,26 @@
         "type": "bytes32"
       },
       {
-        "internalType": "int256",
+        "internalType": "uint256",
         "name": "_maxAttempts",
-        "type": "int256"
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_msg",
+        "type": "string"
+      }
+    ],
+    "name": "GameResult",
+    "type": "event"
   },
   {
     "inputs": [
@@ -28,7 +41,7 @@
         "type": "string"
       }
     ],
-    "name": "attepmt",
+    "name": "attempt",
     "outputs": [
       {
         "internalType": "bool",
@@ -37,6 +50,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_guess",
+        "type": "string"
+      }
+    ],
+    "name": "play",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   }
 ]
