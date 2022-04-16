@@ -12,6 +12,11 @@
         "type": "bytes32"
       },
       {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_maxAttempts",
         "type": "uint256"
@@ -34,19 +39,26 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_guess",
-        "type": "string"
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "_msg",
+        "type": "bytes32"
       }
     ],
-    "name": "attempt",
+    "name": "HashLog",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "address",
         "name": "",
-        "type": "bool"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -55,14 +67,14 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "_guess",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "name": "play",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
