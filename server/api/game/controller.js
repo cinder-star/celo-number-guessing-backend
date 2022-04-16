@@ -94,24 +94,26 @@ async function playGame(req, res) {
       );
 
       // Transfer funds to the reserve
-      await reserveContract.methods
-        .distribute(process.env.PLAYER_WALLET_ADDRESS, '5000000000000000000')
-        .send({
-          gas: 2100000,
-          gasPrice: 200000000,
-          from: adminKit.defaultAccount,
-        });
-      const adminGameContract = new adminKit.web3.eth.Contract(
-        basicGame,
-        req.body.gameId
-      );
-      await adminGameContract.methods
-        .pay(process.env.PLAYER_WALLET_ADDRESS)
-        .send({
-          gas: 2100000,
-          gasPrice: 200000000,
-          from: adminKit.defaultAccount,
-        });
+      if (await contract.methods.isPayablePlayer(kit.defaultAccount).call()) {
+        await reserveContract.methods
+          .distribute(process.env.PLAYER_WALLET_ADDRESS, '5000000000000000000')
+          .send({
+            gas: 2100000,
+            gasPrice: 200000000,
+            from: adminKit.defaultAccount,
+          });
+        const adminGameContract = new adminKit.web3.eth.Contract(
+          basicGame,
+          req.body.gameId
+        );
+        await adminGameContract.methods
+          .pay(process.env.PLAYER_WALLET_ADDRESS)
+          .send({
+            gas: 2100000,
+            gasPrice: 200000000,
+            from: adminKit.defaultAccount,
+          });
+      }
 
       res.send({ message: "Congratulations! You've won!" });
     } else {
