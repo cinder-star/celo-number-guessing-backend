@@ -2,6 +2,7 @@ const { newKit } = require('@celo/contractkit');
 const gameFactory = require('../../../abis/GameFactory.json');
 const basicGame = require('../../../abis/BasicGame.json');
 const ierc20 = require('../../../abis/IERC20.json');
+const reserve = require('../../../abis/Reserve.json');
 const keccak256 = require('keccak256');
 
 require('dotenv').config();
@@ -37,18 +38,24 @@ async function createGame(req, res) {
 
     // Transfer funds to the game
     await EdenToken.methods
-      .approve(game, req.body.funds)
+      .approve(process.env.RESERVE_ADDRESS, req.body.funds)
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
     await EdenToken.methods
-      .transfer(game, req.body.funds)
+      .transfer(process.env.RESERVE_ADDRESS, req.body.funds)
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
 
     // Transfer Celo to the game
     await CGLD.methods
       .approve(game, '1000000000000000000')
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
-    await EdenToken.methods
+    await CGLD.methods
       .transfer(game, '1000000000000000000')
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+    await CGLD.methods
+      .approve(process.env.RESERVE_ADDRESS, '1000000000000000000')
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+    await CGLD.methods
+      .transfer(process.env.RESERVE_ADDRESS, '1000000000000000000')
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
 
     res.send({
@@ -77,6 +84,35 @@ async function playGame(req, res) {
     });
     const gameResult = receipt.events.GameResult.returnValues._msg;
     if (gameResult === 'Success') {
+      // Create kit and transfer funds
+      const adminKit = newKit('https://alfajores-forno.celo-testnet.org');
+      adminKit.defaultAccount = process.env.WALLET_ADDRESS;
+      adminKit.connection.addAccount(process.env.WALLET_SECRET);
+      const reserveContract = new adminKit.web3.eth.Contract(
+        reserve,
+        process.env.RESERVE_ADDRESS
+      );
+
+      // Transfer funds to the reserve
+      await reserveContract.methods
+        .distribute(process.env.PLAYER_WALLET_ADDRESS, '5000000000000000000')
+        .send({
+          gas: 2100000,
+          gasPrice: 200000000,
+          from: adminKit.defaultAccount,
+        });
+      const adminGameContract = new adminKit.web3.eth.Contract(
+        basicGame,
+        req.body.gameId
+      );
+      await adminGameContract.methods
+        .pay(process.env.PLAYER_WALLET_ADDRESS)
+        .send({
+          gas: 2100000,
+          gasPrice: 200000000,
+          from: adminKit.defaultAccount,
+        });
+
       res.send({ message: "Congratulations! You've won!" });
     } else {
       res.status(500).send({ message: gameResult });
