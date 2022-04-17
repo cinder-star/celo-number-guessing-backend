@@ -2,9 +2,9 @@
   {
     "inputs": [
       {
-        "internalType": "string[]",
-        "name": "_hints",
-        "type": "string[]"
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
       },
       {
         "internalType": "bytes32",
@@ -12,14 +12,19 @@
         "type": "bytes32"
       },
       {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
+        "internalType": "string[]",
+        "name": "_hints",
+        "type": "string[]"
       },
       {
         "internalType": "uint256",
-        "name": "_maxAttempts",
+        "name": "_minimumStakeAmount",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_nftAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -39,64 +44,18 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "_msg",
-        "type": "bytes32"
-      }
-    ],
-    "name": "HashLog",
-    "type": "event"
-  },
-  {
     "inputs": [],
-    "name": "getHints",
+    "name": "getGameInfo",
     "outputs": [
       {
         "internalType": "string[]",
         "name": "",
         "type": "string[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
-        "internalType": "address",
-        "name": "_address",
-        "type": "address"
-      }
-    ],
-    "name": "isPayablePlayer",
-    "outputs": [
-      {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_address",
-        "type": "address"
-      }
-    ],
-    "name": "isWinner",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -116,14 +75,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_address",
-        "type": "address"
-      }
-    ],
-    "name": "pay",
+    "inputs": [],
+    "name": "participate",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -138,7 +91,7 @@
     ],
     "name": "play",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   }
 ]
