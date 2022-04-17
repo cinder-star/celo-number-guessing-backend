@@ -59,7 +59,7 @@ async function createBasicGame(req, res) {
     });
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
   }
 }
 
@@ -78,7 +78,7 @@ async function getBasicHints(req, res) {
     res.send({ hints });
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
   }
 }
 
@@ -147,7 +147,7 @@ async function playBasicGame(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
   }
 }
 
@@ -228,7 +228,7 @@ async function createEdenGame(req, res) {
     res.send({ gameId });
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
   }
 }
 
@@ -266,7 +266,7 @@ async function getEdenGameInfo(req, res) {
     });
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
   }
 }
 
@@ -317,7 +317,7 @@ async function edenGameRegister(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
   }
 }
 
@@ -357,7 +357,7 @@ async function playEdenGame(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
   }
 }
 
