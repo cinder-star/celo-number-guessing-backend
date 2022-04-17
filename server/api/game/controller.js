@@ -1,5 +1,5 @@
 const { newKit } = require('@celo/contractkit');
-const gameFactory = require('../../../abis/GameFactory.json');
+const basicGameFactory = require('../../../abis/BasicGameFactory.json');
 const basicGame = require('../../../abis/BasicGame.json');
 const ierc20 = require('../../../abis/IERC20.json');
 const reserve = require('../../../abis/Reserve.json');
@@ -12,8 +12,8 @@ async function createGame(req, res) {
   kit.defaultAccount = process.env.WALLET_ADDRESS;
   kit.connection.addAccount(process.env.WALLET_SECRET);
   const contract = new kit.web3.eth.Contract(
-    gameFactory,
-    process.env.GAME_FACTORY_ADDRESS
+    basicGameFactory,
+    process.env.BASIC_GAME_FACTORY_ADDRESS
   );
   const EdenToken = new kit.web3.eth.Contract(
     ierc20,
