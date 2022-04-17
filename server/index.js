@@ -56,6 +56,13 @@ function _createApp(options) {
   // apis are available under /api prefix
   app.use('/api', apiRoute);
 
+  // add non 200 request handler
+  app.use((err, req, res, next) => {
+    if (err instanceof Error) {
+      res.status(400).send({ message: err.message });
+    }
+  });
+
   // error handler middleware has to be attached at the very end
   commonErrorHandler.attachWithApp(app);
 

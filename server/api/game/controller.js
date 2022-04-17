@@ -7,7 +7,7 @@ const keccak256 = require('keccak256');
 
 require('dotenv').config();
 
-async function createGame(req, res) {
+async function createBasicGame(req, res) {
   const kit = newKit('https://alfajores-forno.celo-testnet.org');
   kit.defaultAccount = process.env.WALLET_ADDRESS;
   kit.connection.addAccount(process.env.WALLET_SECRET);
@@ -67,7 +67,7 @@ async function createGame(req, res) {
   }
 }
 
-async function playGame(req, res) {
+async function playBasicGame(req, res) {
   // Set player wallet
   const kit = newKit('https://alfajores-forno.celo-testnet.org');
   kit.defaultAccount = process.env.PLAYER_WALLET_ADDRESS;
@@ -126,6 +126,6 @@ async function playGame(req, res) {
 }
 
 module.exports = {
-  createGame,
-  playGame,
+  createBasicGame,
+  playBasicGame,
 };

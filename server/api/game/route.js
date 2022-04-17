@@ -1,10 +1,19 @@
 const express = require('express');
 const apiController = require('./controller');
+const middleware = require('./middleware');
 
 const router = express.Router();
 
 router
-  .post('/createGame', apiController.createGame)
-  .post('/playGame', apiController.playGame);
+  .post(
+    '/createBasicGame',
+    middleware.basicCreateMiddleware,
+    apiController.createBasicGame
+  )
+  .post(
+    '/playBasicGame',
+    middleware.playMiddleware,
+    apiController.playBasicGame
+  );
 
 module.exports = router;
