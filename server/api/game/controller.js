@@ -1,5 +1,6 @@
 const { newKit } = require('@celo/contractkit');
 const basicGameFactory = require('../../../abis/BasicGameFactory.json');
+const edenGameFactory = require('../../../abis/EdenGameFactory.json');
 const basicGame = require('../../../abis/BasicGame.json');
 const ierc20 = require('../../../abis/IERC20.json');
 const reserve = require('../../../abis/Reserve.json');
@@ -45,12 +46,6 @@ async function createBasicGame(req, res) {
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
 
     // Transfer Celo to the game
-    await CGLD.methods
-      .approve(game, '1000000000000000000')
-      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
-    await CGLD.methods
-      .transfer(game, '1000000000000000000')
-      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
     await CGLD.methods
       .approve(process.env.RESERVE_ADDRESS, '1000000000000000000')
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
@@ -155,8 +150,87 @@ async function playBasicGame(req, res) {
   }
 }
 
+async function createEdenGame(req, res) {
+  // Set player wallet
+  const kit = newKit('https://alfajores-forno.celo-testnet.org');
+  const playerAddress =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_ADDRESS
+      : process.env.PLAYER2_WALLET_ADDRESS;
+  const playerSecret =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_SECRET
+      : process.env.PLAYER2_WALLET_SECRET;
+  kit.defaultAccount = playerAddress;
+  kit.connection.addAccount(playerSecret);
+
+  // Initialize contract
+  const gameFactory = new kit.web3.eth.Contract(
+    edenGameFactory,
+    process.env.EDEN_GAME_FACTORY_ADDRESS
+  );
+  const EdenToken = new kit.web3.eth.Contract(
+    ierc20,
+    process.env.EDEN_TOKEN_ADDRESS
+  );
+  const CGLD = new kit.web3.eth.Contract(
+    ierc20,
+    process.env.CGLD_TOKEN_ADDRESS
+  );
+
+  try {
+    // Transfer Celo to the game factory
+    await CGLD.methods
+      .approve(process.env.EDEN_GAME_FACTORY_ADDRESS, '1000000000000000000')
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+    await CGLD.methods
+      .transfer(process.env.EDEN_GAME_FACTORY_ADDRESS, '1000000000000000000')
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+
+    // Create game and stake amount
+    await EdenToken.methods
+      .approve(process.env.EDEN_GAME_FACTORY_ADDRESS, '3000000000000000000')
+      .send({
+        gas: 2100000,
+        gasPrice: 200000000,
+        from: kit.defaultAccount,
+      });
+    await gameFactory.methods
+      .createEdenGame(
+        req.body.secretNumber,
+        req.body.hints,
+        req.body.minimumStakeAmount,
+        req.body.nftName,
+        req.body.nftSymbol,
+        req.body.nftDescription,
+        req.body.nftURI
+      )
+      .send({
+        gas: 2100000,
+        gasPrice: 200000000,
+        from: kit.defaultAccount,
+      });
+
+    // Transfer Celo to the game
+    const gameId = await gameFactory.methods.getLastGame().call();
+    await CGLD.methods
+      .approve(gameId, '1000000000000000000')
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+    await CGLD.methods
+      .transfer(gameId, '1000000000000000000')
+      .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+
+    // Send response
+    res.send({ gameId });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+}
+
 module.exports = {
   createBasicGame,
   playBasicGame,
   getBasicHints,
+  createEdenGame,
 };
