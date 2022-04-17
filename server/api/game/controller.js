@@ -321,6 +321,46 @@ async function edenGameRegister(req, res) {
   }
 }
 
+async function playEdenGame(req, res) {
+  // Set player wallet
+  const kit = newKit('https://alfajores-forno.celo-testnet.org');
+  const playerAddress =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_ADDRESS
+      : process.env.PLAYER2_WALLET_ADDRESS;
+  const playerSecret =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_SECRET
+      : process.env.PLAYER2_WALLET_SECRET;
+  kit.defaultAccount = playerAddress;
+  kit.connection.addAccount(playerSecret);
+
+  // Initialize contract
+  const hash = '0x' + keccak256(req.body.secretNumber).toString('hex');
+  const gameFactory = new kit.web3.eth.Contract(
+    edenGameFactory,
+    process.env.EDEN_GAME_FACTORY_ADDRESS
+  );
+  const gameId = await gameFactory.methods.getLastGame().call();
+  const contract = new kit.web3.eth.Contract(edenGame, gameId);
+  try {
+    const receipt = await contract.methods.play(hash).send({
+      gas: 2100000,
+      gasPrice: 200000000,
+      from: kit.defaultAccount,
+    });
+    const gameResult = receipt.events.GameResult.returnValues._msg;
+    if (gameResult === 'Success') {
+      res.send({ message: "Congratulations! You've won!" });
+    } else {
+      res.status(500).send({ message: gameResult });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+}
+
 module.exports = {
   createBasicGame,
   playBasicGame,
@@ -328,4 +368,5 @@ module.exports = {
   createEdenGame,
   getEdenGameInfo,
   edenGameRegister,
+  playEdenGame,
 };

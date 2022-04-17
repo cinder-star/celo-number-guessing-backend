@@ -26,6 +26,7 @@ router
     '/edenGameRegister',
     middleware.edenRegisterMiddleware,
     apiController.edenGameRegister
-  );
+  )
+  .post('/playEdenGame', middleware.playMiddleware, apiController.playEdenGame);
 
 module.exports = router;
