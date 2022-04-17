@@ -38,8 +38,20 @@ function edenCreateMiddleware(req, res, next) {
   return next();
 }
 
+function edenRegisterMiddleware(req, res, next) {
+  const fields = ['player'];
+
+  for (let field of fields) {
+    if (!req.body.hasOwnProperty(field)) {
+      return next(new Error(`Missing field: ${field}`));
+    }
+  }
+  return next();
+}
+
 module.exports = {
   basicCreateMiddleware,
   edenCreateMiddleware,
   playMiddleware,
+  edenRegisterMiddleware,
 };

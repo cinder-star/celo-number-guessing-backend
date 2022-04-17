@@ -21,6 +21,11 @@ router
     middleware.edenCreateMiddleware,
     apiController.createEdenGame
   )
-  .get('/edenGameInfo', apiController.getEdenGameInfo);
+  .get('/edenGameInfo', apiController.getEdenGameInfo)
+  .post(
+    '/edenGameRegister',
+    middleware.edenRegisterMiddleware,
+    apiController.edenGameRegister
+  );
 
 module.exports = router;

@@ -270,10 +270,62 @@ async function getEdenGameInfo(req, res) {
   }
 }
 
+async function edenGameRegister(req, res) {
+  // Set player wallet
+  const kit = newKit('https://alfajores-forno.celo-testnet.org');
+  const playerAddress =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_ADDRESS
+      : process.env.PLAYER2_WALLET_ADDRESS;
+  const playerSecret =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_SECRET
+      : process.env.PLAYER2_WALLET_SECRET;
+  kit.defaultAccount = playerAddress;
+  kit.connection.addAccount(playerSecret);
+
+  // Initialize contract
+  const gameFactory = new kit.web3.eth.Contract(
+    edenGameFactory,
+    process.env.EDEN_GAME_FACTORY_ADDRESS
+  );
+  const EdenToken = new kit.web3.eth.Contract(
+    ierc20,
+    process.env.EDEN_TOKEN_ADDRESS
+  );
+
+  try {
+    // Fetch latest game Info
+    const gameId = await gameFactory.methods.getLastGame().call();
+    const contract = new kit.web3.eth.Contract(edenGame, gameId);
+    const gameInfo = await contract.methods.getGameInfo().call();
+    const paymentFee = gameInfo['1'];
+
+    // Check if player has enough funds
+    const balance = await EdenToken.methods.balanceOf(playerAddress).call();
+    if (parseInt(balance) < parseInt(paymentFee)) {
+      throw new Error('Not enough funds');
+    } else {
+      // Participate in game
+      await EdenToken.methods
+        .approve(gameId, paymentFee)
+        .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+      await contract.methods
+        .participate()
+        .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
+      res.send({ message: 'Registration successful' });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+}
+
 module.exports = {
   createBasicGame,
   playBasicGame,
   getBasicHints,
   createEdenGame,
   getEdenGameInfo,
+  edenGameRegister,
 };
