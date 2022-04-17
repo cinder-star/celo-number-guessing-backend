@@ -2,6 +2,7 @@ const { newKit } = require('@celo/contractkit');
 const basicGameFactory = require('../../../abis/BasicGameFactory.json');
 const edenGameFactory = require('../../../abis/EdenGameFactory.json');
 const basicGame = require('../../../abis/BasicGame.json');
+const edenGame = require('../../../abis/EdenGame.json');
 const ierc20 = require('../../../abis/IERC20.json');
 const reserve = require('../../../abis/Reserve.json');
 const keccak256 = require('keccak256');
@@ -231,9 +232,48 @@ async function createEdenGame(req, res) {
   }
 }
 
+async function getEdenGameInfo(req, res) {
+  // Set player wallet
+  const kit = newKit('https://alfajores-forno.celo-testnet.org');
+  const playerAddress = process.env.PLAYER1_WALLET_ADDRESS;
+  const playerSecret = process.env.PLAYER1_WALLET_SECRET;
+  kit.defaultAccount = playerAddress;
+  kit.connection.addAccount(playerSecret);
+
+  // Initialize contract
+  const gameFactory = new kit.web3.eth.Contract(
+    edenGameFactory,
+    process.env.EDEN_GAME_FACTORY_ADDRESS
+  );
+
+  try {
+    // Fetch latest game address
+    const gameId = await gameFactory.methods.getLastGame().call();
+    const contract = new kit.web3.eth.Contract(edenGame, gameId);
+    const gameInfo = await contract.methods.getGameInfo().call();
+    const prizeInfo = await contract.methods.getNFTInfo(1).call();
+    res.send({
+      gameInfo: {
+        hints: gameInfo['0'],
+        participationFee: gameInfo['1'],
+      },
+      prizeInfo: {
+        nftName: prizeInfo['0'],
+        nftSymbol: prizeInfo['1'],
+        nftDescription: prizeInfo['2'],
+        nftURI: prizeInfo['3'],
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+}
+
 module.exports = {
   createBasicGame,
   playBasicGame,
   getBasicHints,
   createEdenGame,
+  getEdenGameInfo,
 };

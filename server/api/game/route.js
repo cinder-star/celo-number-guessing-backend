@@ -20,6 +20,7 @@ router
     '/createEdenGame',
     middleware.edenCreateMiddleware,
     apiController.createEdenGame
-  );
+  )
+  .get('/edenGameInfo', apiController.getEdenGameInfo);
 
 module.exports = router;
