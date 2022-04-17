@@ -14,6 +14,7 @@ router
     '/playBasicGame',
     middleware.playMiddleware,
     apiController.playBasicGame
-  );
+  )
+  .get('/basicGameHints', apiController.getBasicHints);
 
 module.exports = router;

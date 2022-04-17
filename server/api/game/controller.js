@@ -67,6 +67,25 @@ async function createBasicGame(req, res) {
   }
 }
 
+async function getBasicHints(req, res) {
+  const kit = newKit('https://alfajores-forno.celo-testnet.org');
+  kit.defaultAccount = process.env.WALLET_ADDRESS;
+  kit.connection.addAccount(process.env.WALLET_SECRET);
+  const basicFactory = new kit.web3.eth.Contract(
+    basicGameFactory,
+    process.env.BASIC_GAME_FACTORY_ADDRESS
+  );
+  try {
+    const address = await basicFactory.methods.getLastGame().call();
+    const contract = new kit.web3.eth.Contract(basicGame, address);
+    const hints = await contract.methods.getHints().call();
+    res.send({ hints });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+}
+
 async function playBasicGame(req, res) {
   // Set player wallet
   const kit = newKit('https://alfajores-forno.celo-testnet.org');
@@ -128,4 +147,5 @@ async function playBasicGame(req, res) {
 module.exports = {
   createBasicGame,
   playBasicGame,
+  getBasicHints,
 };
