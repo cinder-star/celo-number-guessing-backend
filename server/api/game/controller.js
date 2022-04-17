@@ -25,6 +25,10 @@ async function createBasicGame(req, res) {
     ierc20,
     process.env.CGLD_TOKEN_ADDRESS
   );
+  const reserveContract = new kit.web3.eth.Contract(
+    reserve,
+    process.env.RESERVE_ADDRESS
+  );
 
   try {
     // Create the game
@@ -42,8 +46,8 @@ async function createBasicGame(req, res) {
     await EdenToken.methods
       .approve(process.env.RESERVE_ADDRESS, req.body.funds)
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
-    await EdenToken.methods
-      .transfer(process.env.RESERVE_ADDRESS, req.body.funds)
+    await reserveContract.methods
+      .receiveFunds(game, req.body.funds)
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
 
     // Transfer Celo to the game
@@ -112,35 +116,6 @@ async function playBasicGame(req, res) {
     });
     const gameResult = receipt.events.GameResult.returnValues._msg;
     if (gameResult === 'Success') {
-      // Create kit and transfer funds
-      const adminKit = newKit('https://alfajores-forno.celo-testnet.org');
-      adminKit.defaultAccount = process.env.WALLET_ADDRESS;
-      adminKit.connection.addAccount(process.env.WALLET_SECRET);
-      const reserveContract = new adminKit.web3.eth.Contract(
-        reserve,
-        process.env.RESERVE_ADDRESS
-      );
-
-      // Transfer funds to the reserve
-      if (await contract.methods.isPayablePlayer(kit.defaultAccount).call()) {
-        await reserveContract.methods
-          .distribute(playerAddress, '5000000000000000000')
-          .send({
-            gas: 2100000,
-            gasPrice: 200000000,
-            from: adminKit.defaultAccount,
-          });
-        const adminGameContract = new adminKit.web3.eth.Contract(
-          basicGame,
-          gameId
-        );
-        await adminGameContract.methods.pay(playerAddress).send({
-          gas: 2100000,
-          gasPrice: 200000000,
-          from: adminKit.defaultAccount,
-        });
-      }
-
       res.send({ message: "Congratulations! You've won!" });
     } else {
       res.status(500).send({ message: gameResult });
