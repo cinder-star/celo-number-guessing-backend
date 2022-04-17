@@ -209,7 +209,7 @@ async function createEdenGame(req, res) {
         req.body.nftURI
       )
       .send({
-        gas: 11100000,
+        gas: 15000000,
         gasPrice: 200000000,
         from: kit.defaultAccount,
       });
