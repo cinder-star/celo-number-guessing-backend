@@ -89,12 +89,25 @@ async function getBasicHints(req, res) {
 async function playBasicGame(req, res) {
   // Set player wallet
   const kit = newKit('https://alfajores-forno.celo-testnet.org');
-  kit.defaultAccount = process.env.PLAYER_WALLET_ADDRESS;
-  kit.connection.addAccount(process.env.PLAYER_WALLET_SECRET);
+  const playerAddress =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_ADDRESS
+      : process.env.PLAYER2_WALLET_ADDRESS;
+  const playerSecret =
+    req.body.player === 1
+      ? process.env.PLAYER1_WALLET_SECRET
+      : process.env.PLAYER2_WALLET_SECRET;
+  kit.defaultAccount = playerAddress;
+  kit.connection.addAccount(playerSecret);
 
   // Initialize contract
   const hash = '0x' + keccak256(req.body.secretNumber).toString('hex');
-  const contract = new kit.web3.eth.Contract(basicGame, req.body.gameId);
+  const gameFactory = new kit.web3.eth.Contract(
+    basicGameFactory,
+    process.env.BASIC_GAME_FACTORY_ADDRESS
+  );
+  const gameId = await gameFactory.methods.getLastGame().call();
+  const contract = new kit.web3.eth.Contract(basicGame, gameId);
   try {
     const receipt = await contract.methods.play(hash).send({
       gas: 2100000,
@@ -115,7 +128,7 @@ async function playBasicGame(req, res) {
       // Transfer funds to the reserve
       if (await contract.methods.isPayablePlayer(kit.defaultAccount).call()) {
         await reserveContract.methods
-          .distribute(process.env.PLAYER_WALLET_ADDRESS, '5000000000000000000')
+          .distribute(playerAddress, '5000000000000000000')
           .send({
             gas: 2100000,
             gasPrice: 200000000,
@@ -123,15 +136,13 @@ async function playBasicGame(req, res) {
           });
         const adminGameContract = new adminKit.web3.eth.Contract(
           basicGame,
-          req.body.gameId
+          gameId
         );
-        await adminGameContract.methods
-          .pay(process.env.PLAYER_WALLET_ADDRESS)
-          .send({
-            gas: 2100000,
-            gasPrice: 200000000,
-            from: adminKit.defaultAccount,
-          });
+        await adminGameContract.methods.pay(playerAddress).send({
+          gas: 2100000,
+          gasPrice: 200000000,
+          from: adminKit.defaultAccount,
+        });
       }
 
       res.send({ message: "Congratulations! You've won!" });

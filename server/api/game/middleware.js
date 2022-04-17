@@ -9,7 +9,7 @@ function basicCreateMiddleware(req, res, next) {
 }
 
 function playMiddleware(req, res, next) {
-  const fields = ['gameId', 'secretNumber', 'player'];
+  const fields = ['secretNumber', 'player'];
   for (let field of fields) {
     if (!req.body.hasOwnProperty(field)) {
       return next(new Error(`Missing field: ${field}`));
