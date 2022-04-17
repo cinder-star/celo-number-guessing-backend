@@ -18,7 +18,28 @@ function playMiddleware(req, res, next) {
   return next();
 }
 
+function edenCreateMiddleware(req, res, next) {
+  const fields = [
+    'player',
+    'hints',
+    'secretNumber',
+    'participationFee',
+    'nftName',
+    'nftSymbol',
+    'nftDescription',
+    'nftURI',
+  ];
+
+  for (let field of fields) {
+    if (!req.body.hasOwnProperty(field)) {
+      return next(new Error(`Missing field: ${field}`));
+    }
+  }
+  return next();
+}
+
 module.exports = {
   basicCreateMiddleware,
+  edenCreateMiddleware,
   playMiddleware,
 };

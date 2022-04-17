@@ -188,6 +188,9 @@ async function createEdenGame(req, res) {
       .send({ gas: 2100000, gasPrice: 200000000, from: kit.defaultAccount });
 
     // Create game and stake amount
+    const hash =
+      '0x' +
+      keccak256(keccak256(keccak256(req.body.secretNumber))).toString('hex');
     await EdenToken.methods
       .approve(process.env.EDEN_GAME_FACTORY_ADDRESS, '3000000000000000000')
       .send({
@@ -197,16 +200,16 @@ async function createEdenGame(req, res) {
       });
     await gameFactory.methods
       .createEdenGame(
-        req.body.secretNumber,
+        hash,
         req.body.hints,
-        req.body.minimumStakeAmount,
+        req.body.participationFee,
         req.body.nftName,
         req.body.nftSymbol,
         req.body.nftDescription,
         req.body.nftURI
       )
       .send({
-        gas: 2100000,
+        gas: 11100000,
         gasPrice: 200000000,
         from: kit.defaultAccount,
       });

@@ -15,6 +15,11 @@ router
     middleware.playMiddleware,
     apiController.playBasicGame
   )
-  .get('/basicGameHints', apiController.getBasicHints);
+  .get('/basicGameHints', apiController.getBasicHints)
+  .post(
+    '/createEdenGame',
+    middleware.edenCreateMiddleware,
+    apiController.createEdenGame
+  );
 
 module.exports = router;
